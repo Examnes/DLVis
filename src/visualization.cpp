@@ -142,28 +142,6 @@ namespace DL
         wrefresh(desc_window);
     }
 
-    node *visualization::v_search_end()
-    {
-        step("Указатель указывает на первый элемент.", 2);
-        node *n = list;
-        int i = 0;
-        int arrow_x = getmaxx(vis_window) / 2 + 20;
-        while (n->next)
-        {
-            n = n->next;
-            mvwaddstr(vis_window, i * NODE_SUMMARY_SIZE + 1, arrow_x, "<--- ptr");
-            if (i)
-                mvwaddstr(vis_window, (i - 1) * NODE_SUMMARY_SIZE + 1, arrow_x, "        ");
-            wrefresh(vis_window);
-            step("Перейти к следующему узлу.", 5);
-            i++;
-        }
-        mvwaddstr(vis_window, i * NODE_SUMMARY_SIZE + 1, arrow_x, "<--- ptr");
-        if (i)
-            mvwaddstr(vis_window, (i - 1) * NODE_SUMMARY_SIZE + 1, arrow_x, "        ");
-        wrefresh(vis_window);
-        return n;
-    }
 
     node *visualization::v_search(int where)
     {
@@ -171,7 +149,7 @@ namespace DL
         node *n = list;
         int i = 0;
         int arrow_x = getmaxx(vis_window) / 2 + 20;
-        while (n->next && i != where)
+        while (n && (int)n != where)
         {
             n = n->next;
             mvwaddstr(vis_window, i * NODE_SUMMARY_SIZE + 1, arrow_x, "<--- ptr");
@@ -179,7 +157,6 @@ namespace DL
                 mvwaddstr(vis_window, (i - 1) * NODE_SUMMARY_SIZE + 1, arrow_x, "        ");
             wrefresh(vis_window);
             step("Перейти к следующему узлу.", 5);
-            step("Увеличить счетчик.", 6);
             i++;
         }
         mvwaddstr(vis_window, i * NODE_SUMMARY_SIZE + 1, arrow_x, "<--- ptr");
@@ -409,13 +386,8 @@ namespace DL
                 mvwaddstr(desc_window, 6, 0, "Введите, где вставлять ");
                 wrefresh(desc_window);
                 int where;
-                where = mvwgetch(desc_window, 7, 0);
-                while (!isdigit(where) || (where - '0') >= list_size)
-                {
-                    mvwaddstr(desc_window, 6, 0, "Слишком большой индекс");
-                    wrefresh(desc_window);
-                    where = mvwgetch(desc_window, 7, 0);
-                }
+                mvwgetnstr(desc_window, 7, 0, buffer, 10);
+                where = atoi(buffer);
                 noecho();
                 v_insert(where - '0', data);
             }
@@ -425,13 +397,8 @@ namespace DL
                 mvwaddstr(desc_window, 6, 0, "Введите, где удалять ");
                 wrefresh(desc_window);
                 int where;
-                where = mvwgetch(desc_window, 7, 0);
-                while (!isdigit(where) || (where - '0') >= list_size)
-                {
-                    mvwaddstr(desc_window, 6, 0, "Слишком большой индекс");
-                    wrefresh(desc_window);
-                    where = mvwgetch(desc_window, 7, 0);
-                }
+                mvwgetnstr(desc_window, 7, 0, buffer, 10);
+                where = atoi(buffer);
                 noecho();
                 v_remove(where - '0');
                 break;

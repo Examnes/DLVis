@@ -8,8 +8,13 @@
 #include <windows.h>
 #include <pdcurses/curses.h>
 
+#define MIDX getmaxx(stdscr)/2
+#define MIDY getmaxy(stdscr)/2
+
 using namespace std;
 using namespace DL;
+
+#define dock_middle(y,s) mvaddstr(y,MIDX - strlen(s)/2,s);
 
 template<typename T>
 T read(bool(*predicate)(T,T),T arg = 0)
@@ -43,12 +48,7 @@ int main(int, char**)
     keypad(stdscr, TRUE);
     noecho();
     refresh();
-
     short current_option = 255;
-    mvaddstr(0,0,"нажмите стрелку ввверх или вниз, чтобы чтобы листать пункты, нажмите q чтобы выйти, или нажмите стрелку вправо чтобы выбрать данный пункт");
-    mvprintw(0,1," Почитать теорию\n Пройти тест\n Посмотреть визуализацию\n");
-    mvaddch(current_option % 3 + 2,0,'>');
-    refresh();
     int choise = 0;
 	while(choise != 'q')
 	{
@@ -74,13 +74,33 @@ int main(int, char**)
                 break;
             }
             break;
+        case 'q':
+            exit(0);
+        break;
         default:
             break;
         }
         clear();
-        mvaddstr(0,0,"нажмите стрелку ввверх или вниз, чтобы чтобы листать пункты, нажмите q чтобы выйти, или нажмите стрелку вправо чтобы выбрать данный пункт");
-        mvprintw(1,0," Почитать теорию\n Пройти тест\n Посмотреть визуализацию\n");
-        mvaddch(current_option % 3 + 1,0,'>');
+        box(stdscr,0,0);
+        wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
+        
+
+        dock_middle(MIDY + 1,"Нажмите стрелку ввверх или вниз, чтобы чтобы листать пункты, нажмите q чтобы выйти, или нажмите стрелку вправо чтобы выбрать данный пункт");
+        mvprintw(MIDY + 2,2,"Почитать теорию");
+        mvprintw(MIDY + 3,2,"Пройти тест");
+        mvprintw(MIDY + 4,2,"Посмотреть визуализацию");
+        mvaddch(MIDY + current_option % 3 + 2,1,'>');
+
+        dock_middle(0,"О ПРОГРАММЕ");
+        dock_middle(2,"Курсовой проект");
+        dock_middle(4,"По дисциплине \"Программирование и  информатика\"");
+        dock_middle(6,"Учебно-демонстрационная прогрмма \"Двусвязный список\"");
+        dock_middle(MIDY - 3,"Выполнил студент группы ДИПРБ-11 Тагиров Руслан");
+        dock_middle(MIDY - 1,"АГТУ 2020");
+
+        mvhline(MIDY,1,'-',getmaxx(stdscr) - 2);
+        mvaddstr(MIDY,MIDX - 6,"ГЛАВНОЕ МЕНЮ");
+
         refresh();
         choise = getch();
 	}

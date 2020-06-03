@@ -28,7 +28,6 @@ namespace DL
         void restore_defaults();
 
         node* v_search(int where);
-        node* v_search_end();
         void v_push(int32_t data);
         void v_pop();
         void v_insert(int where,int32_t data);
@@ -64,12 +63,11 @@ std::string codes[5] =
     })",
     R"( bool insert(node *begin, size_t where, uint32_t data)
     {
-        while (begin && where)
+        while (begin != where && begin)
         {
             begin = begin->next;
-            where--;
         }
-        if (!begin)
+        if (begin!=where)
             return false;
         node *temp = node_init(data);
         temp->next = begin->next;
@@ -81,12 +79,11 @@ std::string codes[5] =
     })",
     R"( bool remove(node *begin, size_t where)
     {
-        while (begin && where)
+        while (begin != where && begin)
         {
             begin = begin->next;
-            where--;
         }
-        if (!begin)
+        if (begin!=where)
             return false;
         if (begin->previous)
             begin->previous->next = begin->next;
