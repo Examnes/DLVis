@@ -34,6 +34,7 @@ namespace DL
         void v_remove(int where);
         void v_push_f(int32_t data);
         void v_pop_f();
+        void v_search_data(int32_t data);
 
         enum op
         {
@@ -42,7 +43,8 @@ namespace DL
             op_insert,
             op_remove,
             op_push_f,
-            op_pop_f
+            op_pop_f,
+            op_search
         };
 
         void print_code(op operation);
@@ -124,7 +126,14 @@ std::string codes[7] =
         list.end = end->previous;
         if(list.end) list.end->next = nullptr;
         delete end;
-    })"
+    })",
+    R"( node* search(uint32_t data)
+    {
+        node* n = list.begin;
+        while(n || n->data != data)
+            n = n->next;
+        return n;
+    })",
 };
 
     public:

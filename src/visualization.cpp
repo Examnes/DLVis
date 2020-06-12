@@ -102,9 +102,8 @@ namespace DL
             mvwaddch(deb_window, i, 0, ' ');
         }
         mvwaddch(deb_window, line, 0, '>');
-        mvwaddstr(deb_window, getmaxy(deb_window) - 2, 0, "Нажмите стрелку вправо,чтобы продвинуть визуализацию на шаг вперед, или нажимайте стрелку влево, чтобы смотреть прошлы шаги.");
-        wrefresh(desc_window);
         wrefresh(deb_window);
+        wrefresh(desc_window);
         add_loopback();
         int current_step = loopback.size() - 1;
 
@@ -151,7 +150,6 @@ namespace DL
         while (n && ((int)n) != where)
         {
             n = n->next;
-            int add = ((int)n);
             mvwaddstr(vis_window, i * NODE_SUMMARY_SIZE + 1, arrow_x, "<--- ptr");
             if (i)
                 mvwaddstr(vis_window, (i - 1) * NODE_SUMMARY_SIZE + 1, arrow_x, "        ");
@@ -397,6 +395,30 @@ namespace DL
         list_size--;
     }
 
+    void visualization::v_search_data(int32_t data)
+    {
+        print_code(op_search);
+        step("Указатель указывает напервый элемент",2);
+        node *n = list;
+        int i = 0;
+        int arrow_x = getmaxx(vis_window) / 2 + 20;
+        while (n && n->data != data)
+        {
+            n = n->next;
+            mvwaddstr(vis_window, i * NODE_SUMMARY_SIZE + 1, arrow_x, "<--- ptr");
+            if (i)
+                mvwaddstr(vis_window, (i - 1) * NODE_SUMMARY_SIZE + 1, arrow_x, "        ");
+            wrefresh(vis_window);
+            step("Перейти к следующему узлу.", 4);
+            i++;
+        }
+        mvwaddstr(vis_window, i * NODE_SUMMARY_SIZE + 1, arrow_x, "<--- ptr");
+        if (i)
+            mvwaddstr(vis_window, (i - 1) * NODE_SUMMARY_SIZE + 1, arrow_x, "        ");
+        wrefresh(vis_window);
+        step("Вернуть найденный узел или указатель на ноль.", 5);
+    }
+
     void visualization::visualization_start()
     {
         vis_window = create_newwin(LINES, COLS * 5 / 8, 0, COLS * 3 / 8);
@@ -414,12 +436,20 @@ namespace DL
         {
             wclear(desc_window);
             mvwaddstr(desc_window, 0, 0, "Введите номер операции");
-            
+            mvwaddstr(desc_window, getmaxy(desc_window) - 2, 0, "Во время визуализации нажмите стрелку вправо, чтобы продвинуться на шаг вперед или стрелку влево, чтобы посмотреть предыдущие шаги (только посмотреть)");
+            wrefresh(desc_window);
+            wclear(deb_window);
+            wclear(vis_window);
+            wrefresh(deb_window);
+            wrefresh(vis_window);
+            print_list();
+
             if(list_size)
             {
                 mvwaddstr(desc_window, 2, 0, "2.Удалить элмент из начала списка");
                 mvwaddstr(desc_window, 4, 0, "4.Удалить элмент из середины списка");
                 mvwaddstr(desc_window,6,0,"6.Удалить элемент из конца списка");
+                mvwaddstr(desc_window,7,0,"7.Найти узел с указанным содержимым");
             }
             if(list_size < 6)
             {
@@ -427,7 +457,7 @@ namespace DL
                 mvwaddstr(desc_window, 3, 0, "3.Вставить элемент в середине списка");
                 mvwaddstr(desc_window,5,0,"5.Вставить элемент в конец списка");
             }
-            mvwaddstr(desc_window, 7, 0, "0.Выйти из визуализации");
+            mvwaddstr(desc_window, 8, 0, "0.Выйти из визуализации");
             wrefresh(desc_window);
             
             
@@ -437,7 +467,7 @@ namespace DL
                 do
                 {
                     choise = getch();
-                }while(choise == '2' || choise == '4' || choise == '6');
+                }while(choise == '2' || choise == '4' || choise == '6' || choise == '7');
             }else if(list_size == 6)
             {
                 do
@@ -514,6 +544,18 @@ namespace DL
                 noecho();
                 v_pop_f();
                 break;
+            case '7':
+            {
+                mvwaddstr(desc_window, 6, 0, "Введите, что найти ");
+                wrefresh(desc_window);
+                mvwgetnstr(desc_window, 7, 0, buffer, 10);
+                int data = atoi(buffer);
+                wclear(desc_window);
+                wrefresh(desc_window);
+                noecho();
+                v_search_data(data);
+            }
+            break; 
             case '0':
             {
                 break;
