@@ -32,6 +32,8 @@ namespace DL
         void v_pop();
         void v_insert(int where,int32_t data);
         void v_remove(int where);
+        void v_push_f(int32_t data);
+        void v_pop_f();
 
         enum op
         {
@@ -39,21 +41,29 @@ namespace DL
             op_pop,
             op_insert,
             op_remove,
+            op_push_f,
+            op_pop_f
         };
 
         void print_code(op operation);
         void step(std::string description,int line);
 
-std::string codes[5] = 
+std::string codes[7] = 
 {
-    R"( void push_back(node *begin, uint32_t data)
+    R"( void push_back(uint32_t data)
     {
-        begin->previous = node_init(data);
-        begin->previous->next = begin;
-        list = begin->previous;
+        node* begin = list.begin;
+        if(begin)
+        {
+            begin->previous = node_init(data);
+            begin->previous->next = begin;
+            list = begin->previous;
+        }else
+            list = node_init(data);
     })",
-    R"( uint32_t pop_back(node *begin)
+    R"( uint32_t pop_back()
     {
+        node* begin = list.begin;
         uint32_t data = begin->data;
         if(begin->next) begin->next->previous = nullptr;
         node* next = begin->next;
@@ -61,8 +71,9 @@ std::string codes[5] =
         list = next;
         return data;
     })",
-    R"( bool insert(node *begin, size_t where, uint32_t data)
+    R"( bool insert(size_t where, uint32_t data)
     {
+        node* begin = list.begin;
         while (begin != where && begin)
         {
             begin = begin->next;
@@ -77,8 +88,9 @@ std::string codes[5] =
         begin->next = temp;
         return true;
     })",
-    R"( bool remove(node *begin, size_t where)
+    R"( bool remove(size_t where)
     {
+        node* begin = list.begin;
         while (begin != where && begin)
         {
             begin = begin->next;
@@ -91,6 +103,27 @@ std::string codes[5] =
             begin->next->previous = begin->previous;
         delete begin;
         return true;
+    })",
+    R"( void push_front(uint32_t data)
+    {
+        node* end = list.end;
+        if(end)
+        {
+            end->next = node_init(data);
+            end->next->previous = end;
+            list.end = end->next;
+        }else
+        {
+            list.end = node_init(data);
+            list.begin = list.end;
+        }
+    })",
+    R"( uint32_t pop_front()
+    {
+        node* end = list.end;
+        list.end = end->previous;
+        if(list.end) list.end->next = nullptr;
+        delete end;
     })"
 };
 

@@ -142,16 +142,16 @@ namespace DL
         wrefresh(desc_window);
     }
 
-
     node *visualization::v_search(int where)
     {
-        step("Указатель указывает на первый элемент.", 3);
+        step("Указатель указывает на первый элемент.", 2);
         node *n = list;
         int i = 0;
         int arrow_x = getmaxx(vis_window) / 2 + 20;
-        while (n && (int)n != where)
+        while (n && ((int)n) != where)
         {
             n = n->next;
+            int add = ((int)n);
             mvwaddstr(vis_window, i * NODE_SUMMARY_SIZE + 1, arrow_x, "<--- ptr");
             if (i)
                 mvwaddstr(vis_window, (i - 1) * NODE_SUMMARY_SIZE + 1, arrow_x, "        ");
@@ -171,23 +171,31 @@ namespace DL
         print_list();
         print_code(op::op_push);
         node *begin = list;
-        initalize_node(begin->previous, data);
-
-        print_node(begin->previous, 0, NODE_WIDTH / 2 + NODE_WIDTH);
-        print_node(begin, 0);
-        mvwhline(vis_window, 2, NODE_ORIGIN + NODE_WIDTH / 2 + 1, '>', NODE_WIDTH / 2 - 1);
-        wrefresh(vis_window);
-        step("Создать новый узел и указателю на предыдущий первого узла присвоить адрес созданного узла", 2);
-        begin->previous->next = begin;
-        print_node(begin->previous, 0, NODE_WIDTH / 2 + NODE_WIDTH);
-        mvwhline(vis_window, 4, NODE_ORIGIN + NODE_WIDTH / 2 + 1, '<', NODE_WIDTH / 2 - 1);
-        wrefresh(vis_window);
-        step("Указателю на следующий узел созданного узла присвоить адрес первого узла", 3);
-        list = begin->previous;
-        wclear(vis_window);
-        print_list();
-        step("Указателю на начало списка присвоить адрес созданного узла", 4);
-        restore_defaults();
+        if(begin)
+        {
+            initalize_node(begin->previous, data);
+            print_node(begin->previous, 0, NODE_WIDTH / 2 + NODE_WIDTH);
+            print_node(begin, 0);
+            mvwhline(vis_window, 2, NODE_ORIGIN + NODE_WIDTH / 2 + 1, '>', NODE_WIDTH / 2 - 1);
+            wrefresh(vis_window);
+            step("Создать новый узел и указателю на предыдущий первого узла присвоить адрес созданного узла", 5);
+            begin->previous->next = begin;
+            print_node(begin->previous, 0, NODE_WIDTH / 2 + NODE_WIDTH);
+            mvwhline(vis_window, 4, NODE_ORIGIN + NODE_WIDTH / 2 + 1, '<', NODE_WIDTH / 2 - 1);
+            wrefresh(vis_window);
+            step("Указателю на следующий узел созданного узла присвоить адрес первого узла", 6);
+            list = begin->previous;
+            wclear(vis_window);
+            print_list();
+            step("Указателю на начало списка присвоить адрес созданного узла", 7);
+            restore_defaults();
+        }else
+        {
+            
+            initalize_node(list,data);
+            print_list();
+            step("Создать новый узел и указателю на первый узел присвоить его", 9);
+        }
         list_size++;
     }
 
@@ -196,7 +204,7 @@ namespace DL
         print_list();           //вывести список
         print_code(op::op_pop); //вывести код в поле с визуализацие кода
         node *begin = list;
-        step("Сохранить данные первого узла", 2);
+        step("Сохранить данные первого узла", 3);
         if (begin->next)
         {
             begin->next->previous = nullptr;
@@ -204,18 +212,18 @@ namespace DL
             wvline(vis_window, ' ', DISTANCE_BETWEEN_NODES);
             mvwclrrect(vis_window, NODE_SUMMARY_SIZE, NODE_ORIGIN - NODE_WIDTH / 2, NODE_WIDTH, NODE_HEIGHT);
             print_node(begin->next, 1);
-            step("Если это не последний в списке узел, то указатель на предыдущий следующего за первым узла обнулить", 3);
+            step("Если это не последний в списке узел, то указатель на предыдущий следующего за первым узла обнулить", 4);
         }
         node *next = begin->next;
-        step("Сохранить указатель на следующий узел первого узла", 4);
+        step("Сохранить указатель на следующий узел первого узла", 5);
         delete begin;
         mvwclrrect(vis_window, 0, NODE_ORIGIN - NODE_WIDTH / 2, NODE_WIDTH + 1, NODE_SUMMARY_SIZE);
-        step("Удалить первый узел", 5);
+        step("Удалить первый узел", 6);
         list = next;
         wclear(vis_window);
         print_list();
-        step("Присвоить указателю на начало списка адрес сохраненного узла", 6);
-        step("Вернуть сохраненные данные", 6);
+        step("Присвоить указателю на начало списка адрес сохраненного узла", 7);
+        step("Вернуть сохраненные данные", 8);
         list_size--;
     }
 
@@ -275,7 +283,7 @@ namespace DL
         wrefresh(vis_window);
         n->next = temp;
         step("Указателю на следующий выбранного узла присвоить адрес созданного узла.", 14);
-        step("Вернуть истину.", 15);
+        step("Вернуть истину.", 16);
         restore_defaults();
         list_size++;
     }
@@ -324,10 +332,68 @@ namespace DL
 
         mvwclrrect(vis_window, (where - 1) * NODE_SUMMARY_SIZE + NODE_HEIGHT, NODE_ORIGIN - NODE_WIDTH / 2, NODE_WIDTH + 1, NODE_SUMMARY_SIZE + DISTANCE_BETWEEN_NODES);
         wrefresh(vis_window);
-        step("Удалить данный узел.", 12);
+        step("Удалить данный узел.", 13);
         wclear(vis_window);
         print_list();
         step("Вернуть истину.", 14);
+        list_size--;
+    }
+
+    void visualization::v_push_f(int32_t data)
+    {
+        print_code(op_push_f);
+        node* n = list;
+        if(n)
+        while(n->next)
+            n = n->next;
+        print_list();
+        int arrow_x = getmaxx(vis_window) / 2 + 20;
+        mvwaddstr(vis_window, (list_size ? list_size - 1 : 0) * NODE_SUMMARY_SIZE + 1, arrow_x, "<--- end");
+        wrefresh(vis_window);
+        step("Указатель указывает на последний элемент",2);
+        if(n)
+        {
+            initalize_node(n->next,data);
+            print_node(n->next,list_size - 1,NODE_WIDTH / 2 + NODE_WIDTH);
+            print_node(n, list_size - 1);
+            mvwhline(vis_window, 2 + NODE_SUMMARY_SIZE * (list_size - 1), NODE_ORIGIN + NODE_WIDTH / 2 + 1, '>', NODE_WIDTH / 2 - 1);
+            wrefresh(vis_window);
+            step("Если узел не единственный, то создать новый узел и указателю на следующий узел последнего узла присвоить его.",5);
+            n->next->previous = n;
+            print_node(n->next, list_size - 1, NODE_WIDTH / 2 + NODE_WIDTH);
+            mvwhline(vis_window, 4+ NODE_SUMMARY_SIZE * (list_size - 1), NODE_ORIGIN + NODE_WIDTH / 2 + 1, '<', NODE_WIDTH / 2 - 1);
+            wrefresh(vis_window);
+            step("Указателю на предыдущий узел созданного узла присвоить адрес последнего узла", 6);
+            step("Указателю на последний узел списка присвоить адрес созданного узла", 7);
+        }else
+        {
+            initalize_node(list,data);
+            print_list();
+            step("Создать новый узел и указателю на первый узел присвоить его", 10);
+            step("Указателю на последний узел присвоить указатель на первый", 11);
+        }
+    }
+
+    void visualization::v_pop_f()
+    {
+        print_code(op_pop_f);
+        node* n = list;
+        while(n->next)
+            n = n->next;
+        print_list();
+        int arrow_x = getmaxx(vis_window) / 2 + 20;
+        mvwaddstr(vis_window, (list_size - 1) * NODE_SUMMARY_SIZE + 1, arrow_x, "<--- end");
+        wrefresh(vis_window);
+        step("Указатель указывает на последний элемент",2);
+        mvwaddstr(vis_window, (list_size - 1) * NODE_SUMMARY_SIZE + 1, arrow_x, "        ");
+        if(list_size - 1)
+        {
+            mvwaddstr(vis_window, (list_size - 2) * NODE_SUMMARY_SIZE + 1, arrow_x, "<--- end");
+            n->previous->next = nullptr;
+        }
+        delete n;
+        wclear(vis_window);
+        print_list();
         list_size--;
     }
 
@@ -339,21 +405,50 @@ namespace DL
 
         mvwaddstr(desc_window, getmaxy(desc_window) - 2, 0, "Во время визуализации нажмите стрелку вправо, чтобы продвинуться на шаг вперед или стрелку влево, чтобы посмотреть предыдущие шаги (только посмотреть)");
         wrefresh(desc_window);
-        initalize_node(list, 1);
-        list_size = 1;
+        
+        list_size = 0;
+        list = nullptr;
         char choise;
         print_list();
         do
         {
             wclear(desc_window);
             mvwaddstr(desc_window, 0, 0, "Введите номер операции");
-            mvwaddstr(desc_window, 1, 0, "1.Вставить элемент в начало списка");
-            mvwaddstr(desc_window, 2, 0, "2.Удалить элмент из начала списка");
-            mvwaddstr(desc_window, 3, 0, "3.Вставить элемент в середине списка");
-            mvwaddstr(desc_window, 4, 0, "4.Удалить элмент из середины списка");
-            mvwaddstr(desc_window, 5, 0, "0.Выйти из визуализации");
+            
+            if(list_size)
+            {
+                mvwaddstr(desc_window, 2, 0, "2.Удалить элмент из начала списка");
+                mvwaddstr(desc_window, 4, 0, "4.Удалить элмент из середины списка");
+                mvwaddstr(desc_window,6,0,"6.Удалить элемент из конца списка");
+            }
+            if(list_size < 6)
+            {
+                mvwaddstr(desc_window, 1, 0, "1.Вставить элемент в начало списка");
+                mvwaddstr(desc_window, 3, 0, "3.Вставить элемент в середине списка");
+                mvwaddstr(desc_window,5,0,"5.Вставить элемент в конец списка");
+            }
+            mvwaddstr(desc_window, 7, 0, "0.Выйти из визуализации");
             wrefresh(desc_window);
-            choise = getch();
+            
+            
+
+            if(!list_size)
+            {   
+                do
+                {
+                    choise = getch();
+                }while(choise == '2' || choise == '4' || choise == '6');
+            }else if(list_size == 6)
+            {
+                do
+                {
+                    choise = getch();
+                }while(choise == '1' || choise == '3' || choise == '5');
+            }else
+            {
+                choise = getch();
+            }
+            wclear(desc_window);
             char buffer[10];
             memset(buffer, 0, 10);
 
@@ -389,7 +484,7 @@ namespace DL
                 mvwgetnstr(desc_window, 7, 0, buffer, 10);
                 where = atoi(buffer);
                 noecho();
-                v_insert(where - '0', data);
+                v_insert(where, data);
             }
             break;
             case '4':
@@ -400,16 +495,32 @@ namespace DL
                 mvwgetnstr(desc_window, 7, 0, buffer, 10);
                 where = atoi(buffer);
                 noecho();
-                v_remove(where - '0');
+                v_remove(where);
                 break;
             }
+            case '5':
+            {
+                mvwaddstr(desc_window, 6, 0, "Введите, что вставлять ");
+                wrefresh(desc_window);
+                mvwgetnstr(desc_window, 7, 0, buffer, 10);
+                int data = atoi(buffer);
+                wclear(desc_window);
+                wrefresh(desc_window);
+                noecho();
+                v_push_f(data);
+            }
+            break;
+            case '6':
+                noecho();
+                v_pop_f();
+                break;
             case '0':
             {
                 break;
             }
             }
             noecho();
-        } while (list_size != 0 && choise != '0');
+        } while (choise != '0');
         initscr();
     }
 
