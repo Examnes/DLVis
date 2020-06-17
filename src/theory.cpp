@@ -47,24 +47,32 @@ namespace DL
         while (!question_file.eof())
         {
             std::string question;
-            do
-            {
-                getline(question_file, question);
-            } while (std::all_of(question.begin(), question.end(), isspace));
+            std::getline(question_file,question,'\n');
             questions[question_count] = question;
-            question_file >> options_count[question_count];
-            for (uint16_t i = 0; i < options_count[question_count]; i++)
-                do
-                {
-                    getline(question_file, options[question_count][i]);
-                } while (std::all_of(options[question_count][i].begin(), options[question_count][i].end(), isspace));
-            uint16_t right_answer;
+            std::string cost;
+            std::getline(question_file,cost,'\n');
+            cost[question_count] = std::atoi(cost.c_str());
+            std::string option;
             do
             {
-                getline(question_file, question);
-            } while (std::all_of(question.begin(), question.end(), isspace));
-            right_answer = std::stol(question);
-            answers[question_count] = (uint8_t)right_answer;
+                std::getline(question_file,option,'\n');
+                if(option != "###\r")
+                {
+                    options[question_count][options_count[question_count]++] = option;
+                }
+            } while (option != "###\r" && !question_file.eof());
+            uint8_t answer = 0;
+            int mul = 1;
+            for(int i = 0;i < options_count[question_count];i++)
+            {
+                if(options[question_count][i][0] == '+')
+                {
+                    answer += mul;
+                    options[question_count][i].erase(options[question_count][i].begin());
+                }
+                mul *= 2;
+            }
+            answers[question_count] = answer;
             question_count++;
         }
     }
@@ -149,8 +157,9 @@ namespace DL
         mvaddstr(0, 0, "Введите имя пользователя");
         echo();
         char username[20];
-        mvgetnstr(1,0,username,20);
+        mvgetnstr(1, 0, username, 20);
         noecho();
+        bool solved[QUESTION_MAX_COUNT];
         uint8_t choose = 0;
         uint8_t question = 0;
         uint8_t solved_count = 0;
@@ -202,9 +211,11 @@ namespace DL
             case '\n':
                 if ((answers[question] - user_answer) == 0)
                 {
-                    solved_count++;
-                    mvaddstr(10,0,"Ответ верный");
-                }else mvaddstr(10,0,"Ответ неверный");
+                    solved_count += cost[question];
+                    mvaddstr(10, 0, "Ответ верный");
+                }
+                else
+                    mvaddstr(10, 0, "Ответ неверный");
                 refresh();
                 solved[question] = true;
                 total_passed++;
@@ -226,7 +237,8 @@ namespace DL
         } while (total_passed < 5);
         clear();
         std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
-        std::ofstream result; result.open("result.dat",std::ios::ate);
+        std::ofstream result;
+        result.open("result.dat", std::ios::ate);
         std::time_t t = std::chrono::system_clock::to_time_t(begin);
         result << "[" << std::ctime(&t) << "] " << username;
         if (solved_count < 5 || std::chrono::duration_cast<std::chrono::minutes>(end - begin) > std::chrono::minutes(30))

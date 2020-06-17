@@ -14,7 +14,7 @@ namespace DL
         uint8_t answers[QUESTION_MAX_COUNT];
         std::string options[QUESTION_MAX_COUNT][8];
         uint16_t options_count[QUESTION_MAX_COUNT];
-        bool solved[QUESTION_MAX_COUNT];
+        uint16_t cost[QUESTION_MAX_COUNT];
         uint16_t page_count;
         uint16_t question_count;
         uint16_t current_page;

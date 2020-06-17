@@ -106,7 +106,6 @@ namespace DL
         wrefresh(desc_window);
         add_loopback();
         int current_step = loopback.size() - 1;
-
         int choise;
         while (current_step != loopback.size())
         {
@@ -189,7 +188,6 @@ namespace DL
             restore_defaults();
         }else
         {
-            
             initalize_node(list,data);
             print_list();
             step("—оздать новый узел и указателю на первый узел присвоить его", 9);
@@ -227,7 +225,7 @@ namespace DL
 
     void visualization::v_insert(int where, int32_t data)
     {
-        if (!where)
+        if (where == (int)list)
         {
             v_push(data);
             return;
@@ -288,7 +286,7 @@ namespace DL
 
     void visualization::v_remove(int where)
     {
-        if (!where)
+        if (where == (int)list)
         {
             v_pop();
             return;
@@ -370,6 +368,7 @@ namespace DL
             step("—оздать новый узел и указателю на первый узел присвоить его", 10);
             step("”казателю на последний узел присвоить указатель на первый", 11);
         }
+        list_size++;
     }
 
     void visualization::v_pop_f()
@@ -398,7 +397,7 @@ namespace DL
     void visualization::v_search_data(int32_t data)
     {
         print_code(op_search);
-        step("”казатель указывает напервый элемент",2);
+        step("”казатель указывает на первый элемент",2);
         node *n = list;
         int i = 0;
         int arrow_x = getmaxx(vis_window) / 2 + 20;
